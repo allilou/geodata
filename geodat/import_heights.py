@@ -24,7 +24,7 @@ from pivy import coin
 
 import geodat.transversmercator
 from  geodat.transversmercator import TransverseMercator
-import inventortools
+from . import inventortools
 
 
 

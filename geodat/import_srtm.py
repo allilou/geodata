@@ -4,6 +4,7 @@ Import srtm data
 
 import platform
 import urllib
+from urllib.request import urlretrieve
 import time
 import traceback
 import zipfile
@@ -137,7 +138,7 @@ def getdata(directory, dat):
 
 		if not os.path.exists(zipfilename):
 			say("get " + source)
-			tg = urllib.urlretrieve(source, zipfilename)
+			tg = urlretrieve(source, zipfilename)
 			targetfile = tg[0]
 			say("targetfile:"+targetfile)
 			fh = open(targetfile, 'rb')

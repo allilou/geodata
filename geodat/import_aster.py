@@ -47,12 +47,14 @@ def import_ast(b=50.26,l=11.39):
 	example .../.FreeCAD/geodat/AST/ASTGTM2_N51E010_dem.tif
 	'''
 
+	import numpy as np
+
 	bs=np.floor(b)
 	ls=np.floor(l)
 
 	# the ast dataset
 	ff="N%02dE%03d" % (int(bs),int(ls))
-	fn=FreeCAD.ConfigGet("UserAppData") +'/geodat/AST/ASTGTM2_' + ff +'_dem.tif'
+	fn=FreeCAD.ConfigGet("UserAppData") +'geodat/AST/ASTGTM2_' + ff +'_dem.tif'
 	print(fn)
 
 	'''

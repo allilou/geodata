@@ -87,7 +87,7 @@ import geodat.xmltodict
 from  geodat.xmltodict import parse
 
 import time
-debug=0
+debug = False
 
 import numpy as np
 
@@ -129,7 +129,7 @@ def import_latlon(filename,orig,hi):
 
 	FreeCAD.c=c1
 	vals=np.array([float(c) for c in c1.split()])
-	vals=vals.reshape(len(vals)/3,3)
+	#vals=vals.reshape(len(vals)/3,3)
 	'''
 	points=[]
 	points2=[]
@@ -396,7 +396,7 @@ MainWindow:
 			setText:"Track input filename"
 
 		QtGui.QLineEdit:
-			setText:"{}Mod/geodat/testdata/latlonh.txt"
+			setText:"UserAppData/Mod/geodat/testdata/latlonh.txt"
 			id: 'bl'
 
 		QtGui.QPushButton:

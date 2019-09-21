@@ -333,7 +333,7 @@ def createElevationGrid(mode,rbfmode=True,source=None,gridCount=20,zfactor=20,bo
 	}
 
 	say("Source",source,"mode",mode)
-	if source<>None:
+	if source is not None:
 
 		if hasattr(source,"Shape"):
 			# part object

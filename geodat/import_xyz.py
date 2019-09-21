@@ -87,7 +87,7 @@ def getShape(pts):
 			try:dists[dist] += 1
 			except: dists[dist]=1
 	say(dists.keys())
-	mm=np.mean(dists.keys())
+	mm=np.mean(list(dists.keys()))
 
 	tts=[]
 	ia=-1
@@ -188,10 +188,20 @@ def import_xyz(mode,filename="/tmp/test.xyz",label='',ku=20, kv=10,lu=0,lv=0):
 			App.ActiveDocument.grids
 		except:
 			grids=App.ActiveDocument.addObject("App::DocumentObjectGroup","grids")
+
+		# Get or create "Point_Groups".
 		try:
-			App.ActiveDocument.points
+			PointGroups = FreeCAD.ActiveDocument.Point_Groups
 		except:
-			points=App.ActiveDocument.addObject("App::DocumentObjectGroup","points")
+			PointGroups = FreeCAD.ActiveDocument.addObject("App::DocumentObjectGroup", 'Point_Groups')
+			PointGroups.Label = "Point Groups"
+
+		# Get or create "Points".
+		try:
+			FreeCAD.ActiveDocument.Points
+		except:
+			Points = FreeCAD.ActiveDocument.addObject('Points::Feature', "Points")
+			PointGroups.addObject(Points)
 
 		objs=App.ActiveDocument.getObjectsByLabel(label)
 
@@ -219,10 +229,19 @@ def import_xyz(mode,filename="/tmp/test.xyz",label='',ku=20, kv=10,lu=0,lv=0):
 			App.ActiveDocument.grids
 		except:
 			grids=App.ActiveDocument.addObject("App::DocumentObjectGroup","grids")
+		# Get or create "Point_Groups".
 		try:
-			App.ActiveDocument.points
+			PointGroups = FreeCAD.ActiveDocument.Point_Groups
 		except:
-			points=App.ActiveDocument.addObject("App::DocumentObjectGroup","points")
+			PointGroups = FreeCAD.ActiveDocument.addObject("App::DocumentObjectGroup", 'Point_Groups')
+			PointGroups.Label = "Point Groups"
+
+		# Get or create "Points".
+		try:
+			FreeCAD.ActiveDocument.Points
+		except:
+			Points = FreeCAD.ActiveDocument.addObject('Points::Feature', "Points")
+			PointGroups.addObject(Points)
 
 
 		fn=filename
@@ -258,14 +277,24 @@ def import_xyz(mode,filename="/tmp/test.xyz",label='',ku=20, kv=10,lu=0,lv=0):
 
 		if ku>1 and kv>1:
 			pts=reduceGrid(pts,ku,kv)
-		p=Points.Points(pts)
-		Points.show(p)
-		App.ActiveDocument.ActiveObject.ViewObject.ShapeColor=(1.0,.0,0.0)
-		App.ActiveDocument.ActiveObject.ViewObject.PointSize=3.0
-		Gui.updateGui()
-		Gui.SendMsgToActiveView("ViewFit")
+
+		head, tail = os.path.split(fn)
+
+		PointGroup = FreeCAD.ActiveDocument.addObject('Points::Feature', "Point_Group")
+		PointGroup.Label = tail[:-4]
+		FreeCAD.ActiveDocument.Point_Groups.addObject(PointGroup)
+		PointObject = PointGroup.Points.copy()
+		PointObject.addPoints(pts)
+		PointGroup.Points = PointObject
+
 		App.ActiveDocument.ActiveObject.ViewObject.hide()
-	return pts
+		PointGroup.ViewObject.ShapeColor=(1.0,.0,0.0)
+		PointGroup.ViewObject.PointSize=3.0
+
+		FreeCAD.ActiveDocument.recompute()
+		Gui.SendMsgToActiveView("ViewFit")
+
+		return pts
 
 
 sdialog='''
@@ -435,7 +464,7 @@ class MyApp(object):
 #		lu,lv = getShape(self.pts)
 		say("update")
 		lu=int(self.root.ids['lu'].text())
-		lv=int(self.root.ids['lv'].text())
+		lv=float(self.root.ids['lv'].text())
 		say("dd,ud,vd",self.root.ids['dd'].value(),self.root.ids['ud'].value(),self.root.ids['vd'].value())
 
 		dmax = min(lu - self.root.ids['ud'].value(), lv - self.root.ids['vd'].value(),101) -1
@@ -509,7 +538,7 @@ class MyApp(object):
 		v=self.root.ids['vd'].value()
 		d=self.root.ids['dd'].value()
 		lu=int(self.root.ids['lu'].text())
-		lv=int(self.root.ids['lv'].text())
+		lv=float(self.root.ids['lv'].text())
 
 		showFrame(self.pts,u,v,d,lu,lv)
 
@@ -521,7 +550,7 @@ class MyApp(object):
 		d=self.root.ids['dd'].value()
 #		lu,lv = getShape(self.pts)
 		lu=int(self.root.ids['lu'].text())
-		lv=int(self.root.ids['lv'].text())
+		lv=float(self.root.ids['lv'].text())
 
 		say(("create nurbs for subset",u,v,d,lu,lv))
 		suv(self,u,v,d,lu,lv)
@@ -534,7 +563,7 @@ class MyApp(object):
 		d=self.root.ids['dd'].value()
 #		lu,lv = getShape(self.pts)
 		lu=int(self.root.ids['lu'].text())
-		lv=int(self.root.ids['lv'].text())
+		lv=float(self.root.ids['lv'].text())
 
 		muv(self,u,v,d+1,lu,lv)
 
@@ -543,10 +572,7 @@ class MyApp(object):
 def mydialog(run=True):
 	'''the gui startup'''
 
-	import geodat
 	import geodat.miki as miki
-
-	reload(miki)
 
 	app=MyApp()
 
@@ -785,8 +811,7 @@ def suv(app,u=3,v=5,d=10,la=100,lb=100):
 	return tt
 
 
-'''
-alt - kann weg
+
 def suv2(label,pts,u=3,v=5,d=10,la=100,lb=100):
 
 	try:
@@ -818,7 +843,7 @@ def suv2(label,pts,u=3,v=5,d=10,la=100,lb=100):
 	pu=[]
 	say([ "(wb,eb,sb,nb,du,dv)", (wb,eb,sb,nb,du,dv)])
 	for k in range(dv):
-		pu += pts[u+v*la+la*k:u+v*la+du+la*k]
+		pu.append(pts[u+v*la+la*k:u+v*la+du+la*k])
 		uu.append(pts[u+v*la+la*k:u+v*la+du+la*k])
 
 	color=(1-0.5*random.random(),1-0.5*random.random(),1-0.5*random.random())
@@ -866,7 +891,7 @@ def suv2(label,pts,u=3,v=5,d=10,la=100,lb=100):
 
 	# return tt
 	return a
-'''
+
 
 
 # generate 100 quads with each 100 interpolation points

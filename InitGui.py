@@ -35,25 +35,6 @@ import FreeCAD, FreeCADGui
 
 windowCreated = 0
 
-# http://www.bkg.bund.de/nn_159902/EN/FederalOffice/Products/Geo-Data/Geo__Data__node.html__nnn=true
-#import sys
-#for p in sys.path:
-#	print(p)
-
-'''
-try:
-	import importlib
-	def reload(a):
-		importlib.reload(a)
-except:
-	pass
->>>>>>> Stashed changes
-
-def reload(a):
-	import importlib
-	importlib.reload(a)
-'''
-
 try:
 	import cv2
 except:
@@ -70,9 +51,7 @@ except:
 
 
 import FreeCAD,FreeCADGui
-import sys
 
-reload(sys)
 
 #---------------------------------------------------------------------------
 # define the Commands of the Test Application module
@@ -460,7 +439,7 @@ class _Command2():
 	def Activated(self):
 
 
-		import re
+		import re, sys
 		ta=True
 		if ta:
 			FreeCAD.ActiveDocument.openTransaction(self.name)

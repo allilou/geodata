@@ -14,7 +14,7 @@ if sys.version_info[0] !=2:
 
 from geodat.say import *
 
-import FreeCAD,FreeCADGui, Part
+import FreeCAD, FreeCADGui, Part
 App=FreeCAD
 Gui=FreeCADGui
 
@@ -42,20 +42,20 @@ cellsize     10.000000000000
 def parsedata(lines):
 	
 	print(lines)
-	a=lines[0].split()
 	dat={}
-	a=lines[0].split()
-	dat[a[0]]=int(a[1])
-	a=lines[1].split()
+	a=lines[0].decode().split()		
 	dat[a[0]]=int(a[1])
 
-	a=lines[2].split()
+	a=lines[1].decode().split()
+	dat[a[0]]=int(a[1])
+
+	a=lines[2].decode().split()
 	dat[a[0]]=float(a[1])
 
-	a=lines[3].split()
+	a=lines[3].decode().split()
 	dat[a[0]]=float(a[1])
 
-	a=lines[4].split()
+	a=lines[4].decode().split()
 	dat[a[0]]=float(a[1])
 
 	a=[]

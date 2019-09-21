@@ -8,8 +8,8 @@
 #-- GNU Lesser General Public License (LGPL)
 #-------------------------------------------------
 
-import FreeCAD,FreeCADGui
 import FreeCAD, FreeCADGui, Draft
+from geodat.say import *
 
 import sys
 if sys.version_info[0] !=2:
@@ -26,7 +26,7 @@ import geodat.transversmercator
 from  geodat.transversmercator import TransverseMercator
 import inventortools
 
-from geodat.say import *
+
 
 #\cond
 tm=TransverseMercator()
@@ -43,13 +43,15 @@ response = urllib2.urlopen(f)
 '''
 
 def getheight(b,l):
-	source="https://maps.googleapis.com/maps/api/elevation/json?locations="+str(b)+','+str(l)
+	#source="https://maps.googleapis.com/maps/api/elevation/json?locations="+str(b)+','+str(l)
+	source="https://api.open-elevation.com/api/v1/lookup?locations="+str(b)+','+str(l)
 	say(source)
 
 	try:
 		import urllib2
 		response = urllib2.urlopen(source)
 	except:
+		import urllib
 		response = urllib.request.urlopen(source)
 
 	ans=response.read()
@@ -66,7 +68,7 @@ def getheight(b,l):
 		return round(r['elevation']*1000,2)
 
 
-## download the heights from google
+## download the heights from open-elevation
 
 def run(b0=50.35,l0=11.17,b=50.35,le=11.17,size=40):
 
@@ -83,43 +85,26 @@ def run(b0=50.35,l0=11.17,b=50.35,le=11.17,size=40):
 	for i in range(-size,size):
 		bb=b+i*0.001
 		ss=str(bb)+','+str(le)
-		if i < size -1:
-			ss += '|'
 		source += ss
 
 
-	try:
-		import urllib2
-		response = urllib2.urlopen(source)
-	except:
-		response = urllib.request.urlopen(source)
-
-	#+# to do: error handling  - wait and try again
-	ans=response.read()
-#	say(ans)
-#	say("--------")
-	s=json.loads(ans)
-	say(s)
-
+		import json
+		from urllib import request
+		response = request.urlopen(source)
+		s=json.loads(response.read())
+		
+		res = s['results']
 	
-	if s['status']=='REQUEST_DENIED':
-		say("Fehler-aBBruch")
-		return
-	else:
-		print(ans)
-		s=json.loads(ans)
-		res=s['results']
-	
-	points=[]
-	for r in res:
-		c=tm.fromGeographic(r['location']['lat'],r['location']['lng'])
-		v=FreeCAD.Vector(
-					round((c[0]-center[0]),2),
-					round((c[1]-center[1]),2), 
-					round(r['elevation']*1000,2)-baseheight
-				)
-		points.append(v)
-	
+		points=[]
+		for r in res:
+			c=tm.fromGeographic(r['location']['lat'],r['location']['lng'])
+			v=FreeCAD.Vector(
+						round((c[0]-center[0]),2),
+						round((c[1]-center[1]),2), 
+						round(r['elevation']*1000,2)-baseheight
+					)
+			points.append(v)
+		
 	Draft.makeWire(points,closed=False,face=False,support=None)
 	FreeCAD.activeDocument().recompute()
 	FreeCADGui.updateGui()

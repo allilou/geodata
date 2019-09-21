@@ -338,7 +338,7 @@ class EventFilter(QtCore.QObject):
 #
 
 def stop():
-	mw=QtGui.qApp
+	mw=QtGui.QApplication
 	ef=FreeCAD.eventfilter
 	mw.removeEventFilter(ef)
 	#mw.setOverrideCursor(QtCore.Qt.SizeAllCursor)
@@ -1005,7 +1005,7 @@ def navi():
 	'''navigator startup'''
 
 
-	mw=QtGui.qApp
+	mw=QtGui.QApplication
 	#widget.setCursor(QtCore.Qt.SizeAllCursor)
 	#cursor ausblenden
 	#mw.setOverrideCursor(QtCore.Qt.BlankCursor)
